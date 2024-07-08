@@ -21,7 +21,8 @@ typedef struct posicao {
 
 bool findmap (Mapa *m, Posicao *p, char c);
 bool isvalid (Mapa *m, int x, int y);
-bool ehparede (Mapa *m, int x, int y);
+bool iswall (Mapa *m, int x, int y);
+bool ischaracter (Mapa *m, char personagem, int x, int y);
 
 void walkonmap(Mapa* m, int xori, int yori, int xdes, int ydes);
 

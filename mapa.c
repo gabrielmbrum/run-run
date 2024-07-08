@@ -3,6 +3,19 @@
 #include <stdbool.h>
 #include "mapa.h"
 
+void printmap (Mapa m) {
+    for (int i = 0; i < m.linhas; i++) {
+        printf("%s\n", m.matriz[i]);
+    }
+}
+
+void alocatemap (Mapa *m) {
+    (*m).matriz = malloc(sizeof(char*) * (*m).linhas);
+
+    for (int i = 0; i < m->linhas; i++) 
+        m->matriz[i] = malloc(sizeof(char) * (*m).colunas);
+}
+
 void readmap (Mapa *m) {
     FILE* f;
     f = fopen("mapa.txt", "r");
@@ -21,24 +34,10 @@ void readmap (Mapa *m) {
     fclose(f);
 }
 
-void alocatemap (Mapa *m) {
-    (*m).matriz = malloc(sizeof(char*) * (*m).linhas);
-
-    for (int i = 0; i < m->linhas; i++) 
-        m->matriz[i] = malloc(sizeof(char) * (*m).colunas);
-}
-
-
 void freemap (Mapa *m) {
     for (int i = 0; i < m->linhas; m++)
         free(m->matriz[i]);
     free(m->matriz);
-}
-
-void printmap (Mapa m) {
-    for (int i = 0; i < m.linhas; i++) {
-        printf("%s\n", m.matriz[i]);
-    }
 }
 
 bool findmap (Mapa *m, Posicao *p, char c) {
@@ -55,6 +54,27 @@ bool findmap (Mapa *m, Posicao *p, char c) {
     return false;
 }
 
-bool canwalk (Mapa *m, char personagem, int x, int y) {
+bool isvalid (Mapa *m, int x, int y) {
+    return (m->linhas > x && m->colunas > y);
+}
 
+bool iswall (Mapa *m, int x, int y) {
+    return (m->matriz[x][y] == PAREDE_VERTICAL || m->matriz[x][y] == PAREDE_HORIZONTAL);
+}
+
+bool ischaracter (Mapa *m, char personagem, int x, int y) {
+    return (m->matriz[x][y] == personagem);
+}
+
+bool canwalk (Mapa *m, char personagem, int x, int y) {
+    return 
+        isvalid(m, x, y) &&
+        !iswall(m, x, y) &&
+        !ischaracter(m, personagem, x, y);
+}
+
+void walkonmap(Mapa* m, int xori, int yori, int xdes, int ydes) {
+    
+    m->matriz[xdes][ydes] = m->matriz[xori][yori];
+    m->matriz[xori][yori] = VAZIO;
 }
