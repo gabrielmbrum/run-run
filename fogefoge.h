@@ -4,7 +4,7 @@
 #define ESQUERDA 'a'
 
 bool acabou();
-void move(char dir);
+void move(char dir, char roled);
 
 bool ehdirecao (char dir);
 void fantasmas();
