@@ -9,60 +9,10 @@
 #define DIREITA 'd'
 #define ESQUERDA 'a'
 
-Mapa m;
+Mapa mapa;
 Posicao heroi;
 
-void printmap (Mapa m) {
-    for (int i = 0; i < m.linhas; i++) {
-        printf("%s\n", m.matriz[i]);
-    }
-}
-
-void alocatemap (Mapa *m) {
-    (*m).matriz = malloc(sizeof(char*) * (*m).linhas);
-
-    for (int i = 0; i < m->linhas; i++) 
-        m->matriz[i] = malloc(sizeof(char) * (*m).colunas);
-}
-
-void readmap (Mapa *m) {
-    FILE* f;
-    f = fopen("mapa.txt", "r");
-    if (f == NULL) {
-        printf("ERROR DURING OPENING THE FILE 'mapa.txt'\n");
-        return;
-    }
-
-    fscanf(f, "%d %d", &(m->linhas), &(m->colunas));
-
-    for (int i = 0; i < m->linhas; i++) {
-        fscanf(f, "%s", m->matriz[i]);
-    }
-}
-
-void freemap (Mapa *m) {
-    for (int i = 0; i < m->linhas; m++)
-        free(m->matriz[i]);
-    free(m->matriz);
-}
-
-void findmap (Mapa *m, Posicao *p, char c) {
-    for (int i = 0; i < m->linhas; i++) {
-        for (int j = 0; j < m->colunas; j++) {
-            if (m->matriz[i][j] == c) {
-                p->x = i;
-                p->y = j;
-                return;
-            }
-        }
-    }
-}
-
-bool cango () {
-
-}
-
-void move (char dir) {
+void move (char dir, char role) {
     if (dir != CIMA &&
             dir != BAIXO &&
             dir != ESQUERDA &&
@@ -86,7 +36,7 @@ void move (char dir) {
             break;
     }
 
-    if (cango(heroi, proximox, proximoy))
+    if (canwalk(&mapa, role, proximox, proximoy))
 }
 
 int main () {
