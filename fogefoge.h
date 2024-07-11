@@ -11,10 +11,10 @@ char getch();
 bool over();
 
 // makes the movement of the role passed
-void move(char dir, char role);
+bool move(char dir, char role);
 
 // Returns if the key pressed is for a direction
 bool isdirection (char dir);
 
 // Controls the ghost moves
-void fantasmas();
+void moveghosts();

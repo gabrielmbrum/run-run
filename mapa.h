@@ -7,6 +7,7 @@
 typedef struct mapa {
     int linhas;
     int colunas;
+    int numofghosts;
     char** matriz;
 } Mapa;
 
@@ -26,8 +27,14 @@ typedef struct posicao {
     int x, y;
 } Posicao;
 
+// Function that returns true if finds on the positions passed the role wanted
+bool find (Mapa m, Posicao pos, char role);
+
 // Function that returns true if finds the HERO into the map and puts it position into the var passed
 bool findhero (Mapa *m, Posicao *p);
+
+// Function that returns true if finds the GHOSTS into the map and puts it position into the var passed
+void findghosts(Mapa *m, Posicao** ghosts); 
 
 // Returns true if the position is inside of the limits of the map
 bool isvalid (Mapa *m, int x, int y);
@@ -39,7 +46,7 @@ bool iswall (Mapa *m, int x, int y);
 bool ischaracter (Mapa *m, char personagem, int x, int y);
 
 // Swap the content of origin and destination
-void walkonmap(Mapa* m, int xori, int yori, int xdes, int ydes);
+bool walkonmap(Mapa* m, int xori, int yori, int xdes, int ydes);
 
 // Returns true if it's possible to walk to the position passed
 bool canwalk(Mapa *m, char personagem, int x, int y);

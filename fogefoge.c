@@ -1,5 +1,6 @@
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include <stdbool.h>
 #include <unistd.h>
 #include <termio.h>
@@ -54,19 +55,19 @@ char getch() {
 
 bool over() {
     Posicao pos;
-    bool ganhou = !findhero(&mapa, &pos);
-    //bool perdeu = !findmap(&mapa, &pos, FANTASMA);
+    bool loose = !find(mapa, heroi, HEROI);
+    //bool win = !findmap(&mapa, &pos, FANTASMA);
 
-    return 0;
+    return (loose);
 }
 
 bool isdirection (char dir) {
     return (dir == CIMA || dir == BAIXO || dir == ESQUERDA || dir == DIREITA);
 }
 
-void move (char dir, char role) {
+bool move (char dir, char role) {
     if (!isdirection(dir))
-        return;
+        return true;
 
     int proximox = heroi.x, proximoy = heroi.y;
 
@@ -86,32 +87,60 @@ void move (char dir, char role) {
     }
 
     if (canwalk(&mapa, role, proximox, proximoy)) {
-        walkonmap(&mapa, heroi.x, heroi.y, proximox, proximoy);
-        heroi.x = proximox;
-        heroi.y = proximoy;
+        if (walkonmap(&mapa, heroi.x, heroi.y, proximox, proximoy)) {
+            heroi.x = proximox;
+            heroi.y = proximoy;
+
+        } else return false; // Hero died
     }
+
+    return true;
 }
 
-void ghosts() {
+void moveghosts() {
+    srand(time(NULL));
+    for (int i = 0; i < mapa.numofghosts; i++) {
+        int nextx, nexty;
+        int count = 0, random;
 
+        do {
+            nextx = ghosts[i].x;
+            nexty = ghosts[i].y;
+            random = rand() % 4;
+            count++;
+            switch (random) {
+                case 0: nextx++; break;
+                case 1: nextx--; break;
+                case 2: nexty++; break;
+                case 3: nexty--; break;
+            }
+
+        } while (count < 7 && !canwalk(&mapa, FANTASMA, nextx, nexty));
+        
+        walkonmap(&mapa, ghosts[i].x, ghosts[i].y, nextx, nexty);
+        ghosts[i].x = nextx;
+        ghosts[i].y = nexty;
+    }
 }
 
 int main () {
     readmap(&mapa);
     findhero(&mapa, &heroi);
-    for (int i = 0; i < NUM_OF_GHOSTS; i++) {
-        findmap(mapa, ghosts[i], char c)
-    }
+    findghosts(&mapa, &ghosts);
 
     do {
         system("clear");
+        //printf("\n");
         printmap(mapa);
 
         char comando = getch();
         //scanf(" %c", &comando);
 
-        move(comando, HEROI);
+        if (move(comando, HEROI))
+            moveghosts();
+        //printf("moveu fan\n");
     } while (!over());
-
+    printf("GAME OVER!!!\n");
+    printmap(mapa);
     freemap(&mapa);
 }

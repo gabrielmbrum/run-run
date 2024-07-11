@@ -24,7 +24,7 @@ void readmap (Mapa *m) {
         return;
     }
 
-    fscanf(f, "%d %d", &(m->linhas), &(m->colunas));
+    fscanf(f, "%d %d %d", &(m->linhas), &(m->colunas), &(m->numofghosts));
     alocatemap(m);
 
     for (int i = 0; i < m->linhas; i++) {
@@ -35,9 +35,14 @@ void readmap (Mapa *m) {
 }
 
 void freemap (Mapa *m) {
-    for (int i = 0; i < m->linhas; m++)
+    for (int i = 0; i < m->linhas; i++)
         free(m->matriz[i]);
+
     free(m->matriz);
+}
+
+bool find (Mapa m, Posicao pos, char role) {
+    return (m.matriz[pos.x][pos.y] == role);
 }
 
 bool findhero (Mapa *m, Posicao *p) {
@@ -54,7 +59,19 @@ bool findhero (Mapa *m, Posicao *p) {
     return false;
 }
 
-bool findghosts() {}
+void findghosts(Mapa *m, Posicao** ghosts) {
+    (*ghosts) = (Posicao*) malloc(sizeof(Posicao) * m->numofghosts);
+    
+    int count = 0;
+    for (int i = 0; i < m->linhas; i++) {
+        for (int j = 0; j < m->colunas; j++) {
+            if (m->matriz[i][j] == FANTASMA) {
+                (*ghosts)[count].x = i;
+                (*ghosts)[count++].y = j;
+            }
+        }
+    }
+}
 
 bool isvalid (Mapa *m, int x, int y) {
     return (m->linhas > x && m->colunas > y);
@@ -75,8 +92,14 @@ bool canwalk (Mapa *m, char personagem, int x, int y) {
         !ischaracter(m, personagem, x, y);
 }
 
-void walkonmap(Mapa* m, int xori, int yori, int xdes, int ydes) {
+bool walkonmap(Mapa* m, int xori, int yori, int xdes, int ydes) {
+    if (m->matriz[xori][yori] == HEROI && m->matriz[xdes][ydes] == FANTASMA) { 
+        m->matriz[xori][yori] = VAZIO; // ghost "eats" hero
+        return false;
+    } 
     
     m->matriz[xdes][ydes] = m->matriz[xori][yori];
     m->matriz[xori][yori] = VAZIO;
+    return true;
+    
 }
