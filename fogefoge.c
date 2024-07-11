@@ -6,15 +6,10 @@
 #include "fogefoge.h"
 #include "mapa.h"
 
-#define CIMA 'w'
-#define BAIXO 's'
-#define DIREITA 'd'
-#define ESQUERDA 'a'
-
 Mapa mapa;
 Posicao heroi;
+Posicao* ghosts;
 
-// Function to read a single character without pressing Enter
 char getch() {
     char buf = 0;
     struct termios old = {0};
@@ -57,9 +52,9 @@ char getch() {
     return buf;
 }
 
-bool acabou() {
+bool over() {
     Posicao pos;
-    bool ganhou = !findmap(&mapa, &pos, HEROI);
+    bool ganhou = !findhero(&mapa, &pos);
     //bool perdeu = !findmap(&mapa, &pos, FANTASMA);
 
     return 0;
@@ -97,9 +92,16 @@ void move (char dir, char role) {
     }
 }
 
+void ghosts() {
+
+}
+
 int main () {
     readmap(&mapa);
-    findmap(&mapa, &heroi, HEROI);
+    findhero(&mapa, &heroi);
+    for (int i = 0; i < NUM_OF_GHOSTS; i++) {
+        findmap(mapa, ghosts[i], char c)
+    }
 
     do {
         system("clear");
@@ -109,7 +111,7 @@ int main () {
         //scanf(" %c", &comando);
 
         move(comando, HEROI);
-    } while (!acabou());
+    } while (!over());
 
     freemap(&mapa);
 }

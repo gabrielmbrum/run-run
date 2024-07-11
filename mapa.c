@@ -40,10 +40,10 @@ void freemap (Mapa *m) {
     free(m->matriz);
 }
 
-bool findmap (Mapa *m, Posicao *p, char c) {
+bool findhero (Mapa *m, Posicao *p) {
     for (int i = 0; i < m->linhas; i++) {
         for (int j = 0; j < m->colunas; j++) {
-            if (m->matriz[i][j] == c) {
+            if (m->matriz[i][j] == HEROI) {
                 p->x = i;
                 p->y = j;
                 return true;
@@ -53,6 +53,8 @@ bool findmap (Mapa *m, Posicao *p, char c) {
 
     return false;
 }
+
+bool findghosts() {}
 
 bool isvalid (Mapa *m, int x, int y) {
     return (m->linhas > x && m->colunas > y);
