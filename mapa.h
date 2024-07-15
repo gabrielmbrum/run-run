@@ -1,8 +1,12 @@
+#ifndef _MAPA_H_
+#define _MAPA_H_
+
 #define HEROI '@'
 #define VAZIO '.'
 #define PAREDE_VERTICAL '|'
 #define PAREDE_HORIZONTAL '-'
 #define  FANTASMA 'F'
+#define PILULA 'P'
 
 typedef struct mapa {
     int linhas;
@@ -10,9 +14,6 @@ typedef struct mapa {
     int numofghosts;
     char** matriz;
 } Mapa;
-
-// Print all lines of the map
-void printmap (Mapa m);
 
 // Alocate memory for the map
 void alocatemap (Mapa *m);
@@ -50,3 +51,5 @@ bool walkonmap(Mapa* m, int xori, int yori, int xdes, int ydes);
 
 // Returns true if it's possible to walk to the position passed
 bool canwalk(Mapa *m, char personagem, int x, int y);
+
+#endif

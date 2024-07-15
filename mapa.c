@@ -3,12 +3,6 @@
 #include <stdbool.h>
 #include "mapa.h"
 
-void printmap (Mapa m) {
-    for (int i = 0; i < m.linhas; i++) {
-        printf("%s\n", m.matriz[i]);
-    }
-}
-
 void alocatemap (Mapa *m) {
     (*m).matriz = malloc(sizeof(char*) * (*m).linhas);
 

@@ -6,10 +6,13 @@
 #include <termio.h>
 #include "fogefoge.h"
 #include "mapa.h"
+#include "ui.h"
 
 Mapa mapa;
 Posicao heroi;
 Posicao* ghosts;
+bool haspill = false;
+bool loose;
 
 char getch() {
     char buf = 0;
@@ -54,11 +57,17 @@ char getch() {
 }
 
 bool over() {
+    bool hasghost = false;
     Posicao pos;
-    bool loose = !find(mapa, heroi, HEROI);
-    //bool win = !findmap(&mapa, &pos, FANTASMA);
+    loose = !find(mapa, heroi, HEROI);
+    for (int i = 0; i<NUM_OF_GHOSTS; i++) {
+        if (mapa.matriz[ghosts[i].x][ghosts[i].y] == FANTASMA) {
+            hasghost = true;
+            break;
+        }
+    }
 
-    return (loose);
+    return (loose || !hasghost);
 }
 
 bool isdirection (char dir) {
@@ -87,6 +96,9 @@ bool move (char dir, char role) {
     }
 
     if (canwalk(&mapa, role, proximox, proximoy)) {
+        if (ischaracter(&mapa, PILULA, proximox, proximoy)) {
+            haspill = true;
+        }
         if (walkonmap(&mapa, heroi.x, heroi.y, proximox, proximoy)) {
             heroi.x = proximox;
             heroi.y = proximoy;
@@ -97,30 +109,68 @@ bool move (char dir, char role) {
     return true;
 }
 
+void killghost(int index) {
+    int aux = 0;
+    Posicao* newghosts;
+    newghosts = malloc(sizeof(Posicao) * mapa.numofghosts-1);
+
+    for (int i = 0; i < mapa.numofghosts; i++) {
+        if (i != index)
+            newghosts[aux++] = ghosts[i];
+    }
+    
+    mapa.numofghosts--;
+    ghosts = newghosts;
+}
+
 void moveghosts() {
     srand(time(NULL));
     for (int i = 0; i < mapa.numofghosts; i++) {
         int nextx, nexty;
         int count = 0, random;
 
-        do {
-            nextx = ghosts[i].x;
-            nexty = ghosts[i].y;
-            random = rand() % 4;
-            count++;
-            switch (random) {
-                case 0: nextx++; break;
-                case 1: nextx--; break;
-                case 2: nexty++; break;
-                case 3: nexty--; break;
-            }
+        if (mapa.matriz[ghosts[i].x][ghosts[i].y] != FANTASMA) {
+            killghost(i);
+        } else {
+            do {
+                nextx = ghosts[i].x;
+                nexty = ghosts[i].y;
+                random = rand() % 4;
+                count++;
+                switch (random) {
+                    case 0: nextx++; break;
+                    case 1: nextx--; break;
+                    case 2: nexty++; break;
+                    case 3: nexty--; break;
+                }
 
-        } while (count < 7 && !canwalk(&mapa, FANTASMA, nextx, nexty));
-        
-        walkonmap(&mapa, ghosts[i].x, ghosts[i].y, nextx, nexty);
-        ghosts[i].x = nextx;
-        ghosts[i].y = nexty;
+            } while (count < 7 && !canwalk(&mapa, FANTASMA, nextx, nexty));
+            
+            if (count < 7) {
+                walkonmap(&mapa, ghosts[i].x, ghosts[i].y, nextx, nexty);
+                ghosts[i].x = nextx;
+                ghosts[i].y = nexty;
+            }
+        }
+
     }
+}
+
+void explode(int x, int y) {
+    if (!iswall(&mapa, x, y) && isvalid(&mapa, x, y))
+        mapa.matriz[x][y] = '.';
+}
+
+void explodepill(int x, int y) {
+    explode(x-1, y);
+    explode(x-1, y+1);
+    explode(x, y+1);
+    explode(x+1, y+1);
+    explode(x+1, y);
+    explode(x+1, y-1);
+    explode(x, y-1);
+    explode(x-1, y-1);
+    haspill = false;
 }
 
 int main () {
@@ -131,16 +181,26 @@ int main () {
     do {
         system("clear");
         //printf("\n");
+        //printf("Tem pilula? %s\n", haspill ? "SIM" : "NAO");
         printmap(mapa);
 
         char comando = getch();
         //scanf(" %c", &comando);
-
-        if (move(comando, HEROI))
+        if (haspill && comando == BOMBA) 
+            explodepill(heroi.x, heroi.y);
+        else if (move(comando, HEROI))
             moveghosts();
         //printf("moveu fan\n");
     } while (!over());
-    printf("GAME OVER!!!\n");
-    printmap(mapa);
+
+    if (loose)
+        printf("GAME OVER!!!\n");
+    else 
+        printf("CONGRATULATIONS!!! YOU WIN!!!\n");
+    for (int i = 0; i < mapa.linhas; i++) 
+        printf("%s\n", mapa.matriz[i]);
+
+    printf("hero position: %d %d", heroi.x, heroi.y);
+    
     freemap(&mapa);
 }
